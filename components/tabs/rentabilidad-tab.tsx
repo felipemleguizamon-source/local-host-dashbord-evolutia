@@ -91,10 +91,16 @@ export function RentabilidadTab() {
   const filterOptions = getFilterOptions()
   const headers = getTableHeaders()
 
-  // Reset filter when view type changes
   const handleViewTypeChange = (type: ViewType) => {
     setViewType(type)
     setSelectedFilter("all")
+  }
+
+  // Función auxiliar para pintar el margen de verde o rojo
+  const getMargenColor = (margen: number) => {
+    if (margen > 0) return "text-emerald-600 font-semibold"
+    if (margen < 0) return "text-rose-600 font-semibold"
+    return "text-slate-600"
   }
 
   return (
@@ -102,12 +108,12 @@ export function RentabilidadTab() {
       {/* Header with Filters */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Rentabilidad</h1>
-          <p className="text-sm text-muted-foreground">{empresaMock.periodo}</p>
+          <h1 className="text-4xl font-extrabold text-slate-900">Rentabilidad</h1>
+          <p className="text-sm text-slate-500 mt-1">{empresaMock.periodo}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-            <SelectTrigger className="w-[200px] h-9 text-sm">
+            <SelectTrigger className="w-[200px] h-10 bg-white border-0 shadow-sm rounded-full font-medium text-slate-700">
               <SelectValue placeholder={getFilterPlaceholder()} />
             </SelectTrigger>
             <SelectContent>
@@ -120,17 +126,17 @@ export function RentabilidadTab() {
             </SelectContent>
           </Select>
           
-          <div className="flex rounded-md border border-border overflow-hidden">
+          <div className="flex rounded-lg border border-slate-200 overflow-hidden bg-white shadow-sm h-10">
             {(["ruta", "cliente", "unidad"] as ViewType[]).map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => handleViewTypeChange(type)}
                 className={cn(
-                  "px-3 py-1.5 text-sm transition-colors",
+                  "px-4 text-sm font-medium transition-colors border-r border-slate-200 last:border-0 h-full flex items-center justify-center",
                   viewType === type
-                    ? "bg-foreground text-background"
-                    : "bg-background text-muted-foreground hover:text-foreground"
+                    ? "bg-[#1c1c1e] text-white"
+                    : "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
                 Por {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -141,7 +147,7 @@ export function RentabilidadTab() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-6">
         <KPICard
           value={rentabilidadKPIs.viajesMes}
           label="Viajes del Mes"
@@ -165,16 +171,19 @@ export function RentabilidadTab() {
       </div>
 
       {/* Data Table */}
-      <div className="border border-border rounded-lg overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/30 hover:bg-muted/30">
-              {headers.map((header) => (
+            {/* 👇 Encabezado: Fondo oscuro, textos blancos */}
+            <TableRow className="bg-[#1c1c1e] hover:bg-[#1c1c1e] border-none">
+              {headers.map((header, index) => (
                 <TableHead 
                   key={header} 
                   className={cn(
-                    "font-medium",
-                    header !== headers[0] && header !== "Modelo" && "text-right"
+                    "font-semibold text-white h-14",
+                    header !== headers[0] && header !== "Modelo" && "text-right",
+                    index === 0 && "pl-6", // Padding extra a la primera columna
+                    index === headers.length - 1 && "pr-6" // Padding extra a la última
                   )}
                 >
                   {header}
@@ -183,54 +192,53 @@ export function RentabilidadTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
+            {/* VISTA 1: RUTAS */}
             {viewType === "ruta" && (filteredData as typeof rutas).map((item) => {
               const margenAbsoluto = item.ingreso - item.costo
               return (
-                <TableRow key={item.nombre}>
-                  <TableCell className="font-medium">{item.nombre}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{item.viajes}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{item.km.toLocaleString("es-AR")}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{formatCurrency(item.ingreso)}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{formatCurrency(item.costo)}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(margenAbsoluto)}</TableCell>
-                  <TableCell className="text-right">
-                    <span className="text-sm text-muted-foreground">
+                <TableRow key={item.nombre} className="border-b border-slate-200 hover:bg-slate-50/50 transition-colors">
+                  <TableCell className="font-bold text-slate-900 border-r border-slate-100 pl-6">{item.nombre}</TableCell>
+                  <TableCell className="text-right text-slate-600 font-medium border-r border-slate-100">{item.viajes}</TableCell>
+                  <TableCell className="text-right text-slate-500 border-r border-slate-100">{item.km.toLocaleString("es-AR")}</TableCell>
+                  <TableCell className="text-right text-slate-600 border-r border-slate-100">{formatCurrency(item.ingreso)}</TableCell>
+                  <TableCell className="text-right text-slate-600 border-r border-slate-100">{formatCurrency(item.costo)}</TableCell>
+                  <TableCell className="text-right font-medium text-slate-900 border-r border-slate-100">{formatCurrency(margenAbsoluto)}</TableCell>
+                  <TableCell className={`text-right pr-6 ${getMargenColor(item.margen)}`}>
                       {item.margen > 0 ? "+" : ""}{item.margen}%
-                    </span>
                   </TableCell>
                 </TableRow>
               )
             })}
+
+            {/* VISTA 2: CLIENTES */}
             {viewType === "cliente" && (filteredData as typeof rentabilidadPorCliente).map((item) => {
               const margenAbsoluto = item.ingreso - item.costo
               return (
-                <TableRow key={item.nombre}>
-                  <TableCell className="font-medium">{item.nombre}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{item.viajes}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{item.km.toLocaleString("es-AR")}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{formatCurrency(item.ingreso)}</TableCell>
-                  <TableCell className="text-right text-muted-foreground">{formatCurrency(item.costo)}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCurrency(margenAbsoluto)}</TableCell>
-                  <TableCell className="text-right">
-                    <span className="text-sm text-muted-foreground">
+                <TableRow key={item.nombre} className="border-b border-slate-200 hover:bg-slate-50/50 transition-colors">
+                  <TableCell className="font-bold text-slate-900 border-r border-slate-100 pl-6">{item.nombre}</TableCell>
+                  <TableCell className="text-right text-slate-600 font-medium border-r border-slate-100">{item.viajes}</TableCell>
+                  <TableCell className="text-right text-slate-500 border-r border-slate-100">{item.km.toLocaleString("es-AR")}</TableCell>
+                  <TableCell className="text-right text-slate-600 border-r border-slate-100">{formatCurrency(item.ingreso)}</TableCell>
+                  <TableCell className="text-right text-slate-600 border-r border-slate-100">{formatCurrency(item.costo)}</TableCell>
+                  <TableCell className="text-right font-medium text-slate-900 border-r border-slate-100">{formatCurrency(margenAbsoluto)}</TableCell>
+                  <TableCell className={`text-right pr-6 ${getMargenColor(item.margen)}`}>
                       {item.margen > 0 ? "+" : ""}{item.margen}%
-                    </span>
                   </TableCell>
                 </TableRow>
               )
             })}
+
+            {/* VISTA 3: UNIDADES */}
             {viewType === "unidad" && (filteredData as typeof rentabilidadPorUnidad).map((item) => (
-              <TableRow key={item.patente}>
-                <TableCell className="font-medium">{item.patente}</TableCell>
-                <TableCell className="text-muted-foreground">{item.modelo}</TableCell>
-                <TableCell className="text-right text-muted-foreground">{item.viajes}</TableCell>
-                <TableCell className="text-right text-muted-foreground">{item.km.toLocaleString("es-AR")}</TableCell>
-                <TableCell className="text-right text-muted-foreground">{formatCurrency(item.ingreso)}</TableCell>
-                <TableCell className="text-right text-muted-foreground">{formatCurrency(item.costo)}</TableCell>
-                <TableCell className="text-right">
-                  <span className="text-sm text-muted-foreground">
+              <TableRow key={item.patente} className="border-b border-slate-200 hover:bg-slate-50/50 transition-colors">
+                <TableCell className="font-bold text-slate-900 border-r border-slate-100 pl-6">{item.patente}</TableCell>
+                <TableCell className="text-slate-600 border-r border-slate-100">{item.modelo}</TableCell>
+                <TableCell className="text-right text-slate-600 font-medium border-r border-slate-100">{item.viajes}</TableCell>
+                <TableCell className="text-right text-slate-500 border-r border-slate-100">{item.km.toLocaleString("es-AR")}</TableCell>
+                <TableCell className="text-right text-slate-600 border-r border-slate-100">{formatCurrency(item.ingreso)}</TableCell>
+                <TableCell className="text-right text-slate-600 border-r border-slate-100">{formatCurrency(item.costo)}</TableCell>
+                <TableCell className={`text-right pr-6 ${getMargenColor(item.margen)}`}>
                     {item.margen > 0 ? "+" : ""}{item.margen}%
-                  </span>
                 </TableCell>
               </TableRow>
             ))}

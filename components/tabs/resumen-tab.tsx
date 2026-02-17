@@ -1,21 +1,22 @@
 import { KPICard } from "@/components/kpi-card"
-import { resumenKPIs, rutas, alertas, empresaMock } from "@/lib/mock-data"
-import { ChevronRight } from "lucide-react"
+import { resumenKPIs, rutas, alertas } from "@/lib/mock-data"
+import { ArrowRight } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export function ResumenTab() {
   const topRutas = rutas.slice(0, 5)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 bg-transparent">
+      
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Resumen</h1>
-          <p className="text-sm text-muted-foreground">{empresaMock.nombre}</p>
+          <h1 className="text-4xl font-extrabold text-slate-900">Bienvenido!</h1>
+          <p className="text-base text-slate-500 mt-1">Este es tu resumen...</p>
         </div>
         <Select defaultValue="enero-2026">
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-white border-0 text-slate-700 font-medium shadow-sm rounded-full">
             <SelectValue placeholder="Seleccionar período" />
           </SelectTrigger>
           <SelectContent>
@@ -27,8 +28,8 @@ export function ResumenTab() {
         </Select>
       </div>
 
-      {/* KPI Cards Row */}
-      <div className="grid grid-cols-5 gap-3">
+      {/* KPI Cards - Fila Superior (3 Tarjetas) */}
+      <div className="grid grid-cols-3 gap-6">
         <KPICard
           value={`${resumenKPIs.margenOperativo.valor}%`}
           label="Margen Operativo"
@@ -36,6 +37,7 @@ export function ResumenTab() {
           tendencia={resumenKPIs.margenOperativo.tendencia}
           variacionTexto={resumenKPIs.margenOperativo.variacionTexto}
           isBueno={true}
+          invertColor={true} // Oscuro
         />
         <KPICard
           value={`$${resumenKPIs.costoKm.valor.toLocaleString("es-AR")}`}
@@ -44,6 +46,7 @@ export function ResumenTab() {
           tendencia={resumenKPIs.costoKm.tendencia}
           variacionTexto={resumenKPIs.costoKm.variacionTexto}
           isBueno={false}
+          invertColor={false} // Blanco
         />
         <KPICard
           value={`${resumenKPIs.otif.valor}%`}
@@ -52,68 +55,83 @@ export function ResumenTab() {
           tendencia={resumenKPIs.otif.tendencia}
           variacionTexto={resumenKPIs.otif.variacionTexto}
           isBueno={true}
-        />
-        <KPICard
-          value={resumenKPIs.diasCobranza.valor}
-          label="Días Cobranza"
-          sublabel="días promedio"
-          tendencia={resumenKPIs.diasCobranza.tendencia}
-          variacionTexto={resumenKPIs.diasCobranza.variacionTexto}
-          isBueno={false}
-        />
-        <KPICard
-          value={`${resumenKPIs.flotaDisponible.valor}%`}
-          label="Flota Disponible"
-          sublabel="14 de 15 unidades"
-          tendencia={resumenKPIs.flotaDisponible.tendencia}
-          variacionTexto={resumenKPIs.flotaDisponible.variacionTexto}
-          isBueno={true}
+          invertColor={false} // Blanco
         />
       </div>
 
-      {/* Two Cards Side by Side */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* KPI Cards - Fila del Medio (2 Tarjetas de distinto tamaño) */}
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2">
+          <KPICard
+            value={`${resumenKPIs.flotaDisponible.valor}%`}
+            label="Flota Disponible"
+            sublabel="14 de 15 unidades"
+            tendencia={resumenKPIs.flotaDisponible.tendencia}
+            variacionTexto={resumenKPIs.flotaDisponible.variacionTexto}
+            isBueno={true}
+            // 👇 ¡AQUÍ ESTÁ EL CAMBIO! Pasó de true a false para que la tarjeta sea blanca
+            invertColor={false} 
+          />
+        </div>
+        <div className="col-span-1">
+          <KPICard
+            value={resumenKPIs.diasCobranza.valor}
+            label="Días Cobranza"
+            sublabel="días promedio"
+            tendencia={resumenKPIs.diasCobranza.tendencia}
+            variacionTexto={resumenKPIs.diasCobranza.variacionTexto}
+            isBueno={false}
+            invertColor={false} // Blanco (el cambio que hicimos en el paso anterior)
+          />
+        </div>
+      </div>
+
+      {/* Tarjetas Inferiores (Listas de datos) */}
+      <div className="grid grid-cols-2 gap-6 mt-8">
+        
         {/* Rentabilidad por Ruta */}
-        <div className="border border-border rounded-lg p-5 bg-background">
-          <h3 className="text-sm font-medium text-foreground mb-4">Rentabilidad por Ruta</h3>
-          <div className="space-y-3">
+        <div className="bg-white rounded-3xl p-8 shadow-sm border-0">
+          <h3 className="text-lg font-bold text-slate-900 mb-6">Rentabilidad por Ruta</h3>
+          <div className="space-y-4">
             {topRutas.map((ruta) => {
               const isPositive = ruta.margen > 0
-              const margenColor = ruta.margen > 4 ? "text-green-600" : ruta.margen > 0 ? "text-foreground" : "text-red-600"
-              const emoji = ruta.margen > 4 ? "🟢" : ruta.margen > 0 ? "🟡" : "🔴"
+              const isNegative = ruta.margen < 0
+              
+              let margenColor = "text-slate-900"
+              if (isPositive) margenColor = "text-emerald-500"
+              else if (isNegative) margenColor = "text-rose-500"
 
               return (
-                <div key={ruta.nombre} className="flex items-center justify-between">
+                <div key={ruta.nombre} className="flex items-center justify-between pb-2 border-b border-slate-50 last:border-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{ruta.nombre}</span>
-                    <span className="text-xs text-muted-foreground/60">· {ruta.viajes} viajes</span>
+                    <span className="text-sm font-medium text-slate-600">{ruta.nombre}</span>
+                    <span className="text-xs text-slate-400">· {ruta.viajes} viajes</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-sm font-medium ${margenColor}`}>
+                    <span className={`text-sm font-bold ${margenColor}`}>
                       {isPositive ? "+" : ""}{ruta.margen}%
                     </span>
-                    <span className="text-sm">{emoji}</span>
                   </div>
                 </div>
               )
             })}
           </div>
-          <button className="mt-4 text-sm text-foreground hover:text-foreground/80 flex items-center gap-1 transition-colors">
+          <button className="mt-8 text-sm font-medium text-slate-900 hover:text-slate-600 flex items-center gap-2 transition-colors">
             Ver análisis completo
-            <ChevronRight className="w-4 h-4" />
+            <ArrowRight size={16} />
           </button>
         </div>
 
         {/* Alertas Recientes */}
-        <div className="border border-border rounded-lg p-5 bg-background">
-          <h3 className="text-sm font-medium text-foreground mb-4">Alertas Recientes</h3>
-          <div className="space-y-4">
+        <div className="bg-white rounded-3xl p-8 shadow-sm border-0">
+          <h3 className="text-lg font-bold text-slate-900 mb-6">Alertas Recientes</h3>
+          <div className="space-y-5">
             {alertas.map((alerta, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-1.5 shrink-0" />
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-foreground">{alerta.titulo}</span>
-                  <span className="text-sm text-muted-foreground">
+              <div key={index} className="flex items-start gap-4">
+                <span className="w-2 h-2 rounded-full bg-slate-300 mt-2 shrink-0" />
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-bold text-slate-800">{alerta.titulo}</span>
+                  <span className="text-sm text-slate-500">
                     Acción sugerida: {alerta.accion}
                   </span>
                 </div>
@@ -122,6 +140,7 @@ export function ResumenTab() {
           </div>
         </div>
       </div>
+      
     </div>
   )
 }

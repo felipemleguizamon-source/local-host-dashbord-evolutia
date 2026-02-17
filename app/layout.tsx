@@ -1,11 +1,22 @@
 import React from "react"
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+// 👇 1. Importamos Poppins en lugar de Open Sans
+import { Poppins, Chakra_Petch } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+// 👇 2. Configuramos Poppins con los grosores (weights) necesarios
+const poppins = Poppins({ 
+  weight: ['400', '500', '600', '700'],
+  subsets: ["latin"],
+});
+
+// 👇 3. Mantenemos tu fuente original solo para el logo
+const chakraPetch = Chakra_Petch({ 
+  weight: '700',
+  subsets: ['latin'],
+  variable: '--font-logo',
+});
 
 export const metadata: Metadata = {
   title: 'Evolutia - Gestión de Flota',
@@ -37,7 +48,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      {/* 👇 4. Aplicamos poppins.className a toda la página */}
+      <body className={`${poppins.className} antialiased bg-[#dee1e6] text-slate-900 ${chakraPetch.variable}`}>
         {children}
         <Analytics />
       </body>

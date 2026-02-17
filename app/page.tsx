@@ -17,31 +17,27 @@ export default function Dashboard() {
 
   const renderTab = () => {
     switch (activeTab) {
-      case "resumen":
-        return <ResumenTab />
-      case "rentabilidad":
-        return <RentabilidadTab />
-      case "combustible":
-        return <CombustibleTab />
-      case "flota":
-        return <FlotaTab />
-      case "cobranzas":
-        return <CobranzasTab />
-      case "configuracion":
-        return <PlaceholderTab title="Configuración" />
-      case "cuenta":
-        return <PlaceholderTab title="Mi Cuenta" />
-      default:
-        return <ResumenTab />
+      case "resumen": return <ResumenTab />
+      case "rentabilidad": return <RentabilidadTab />
+      case "combustible": return <CombustibleTab />
+      case "flota": return <FlotaTab />
+      case "cobranzas": return <CobranzasTab />
+      case "configuracion": return <PlaceholderTab title="Configuración" />
+      case "cuenta": return <PlaceholderTab title="Mi Cuenta" />
+      default: return <ResumenTab />
     }
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    // 👇 Fondo general gris. Sin paddings extraños que encierren el contenido.
+    <div className="flex h-screen bg-[#dee1e6] overflow-hidden">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1 p-8 overflow-auto">
+      
+      {/* 👇 Main transparente. Las tarjetas ahora flotan directamente sobre el gris. */}
+      <main className="flex-1 p-8 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300/80 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
         {renderTab()}
       </main>
+      
       <AISidebar isOpen={isAISidebarOpen} onToggle={() => setIsAISidebarOpen(!isAISidebarOpen)} />
     </div>
   )
@@ -50,7 +46,7 @@ export default function Dashboard() {
 function PlaceholderTab({ title }: { title: string }) {
   return (
     <div className="flex items-center justify-center h-full min-h-[400px]">
-      <p className="text-muted-foreground text-lg">{title} - Proximamente</p>
+      <p className="text-slate-500 text-lg">{title} - Próximamente</p>
     </div>
   )
 }
